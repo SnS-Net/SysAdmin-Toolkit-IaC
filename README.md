@@ -5,6 +5,7 @@ This GitHub repository containing configuration files and scripts to automate th
 
 ```bash
 SYsAdmin-ToolKit-IaC/
+|-- create_structure.sh
 |-- docs/
 |   |-- README.md
 |-- scripts/

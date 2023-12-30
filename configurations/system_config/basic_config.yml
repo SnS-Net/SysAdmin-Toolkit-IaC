@@ -1,0 +1,51 @@
+# Example Basic Server Configuration
+
+server:
+  hostname: my-server
+  timezone: America/New_York
+  users:
+    - name: admin
+      groups: sudo
+      password: <hashed_password>  # Replace with the hashed_password using 'mkpasswd -m sha-512' 
+
+# Network Configuration
+network:
+  interfaces:
+    - name: eth0  # Replace with the name of your actual interface
+      method: dhcp  # Options: dhcp, static
+      # If using static method:
+      # address: 192.168.1.100
+      # netmask: 255.255.255.0
+      # gateway: 192.168.1.1
+      # dns_nameservers:
+      #   - 8.8.8.8
+      #   - 8.8.4.4
+
+# SSH Configuration
+ssh:
+  port: 22  # Change to a custom port if desired
+  allow_root_login: no
+
+# Firewall Configuration
+firewall:
+  enabled: yes
+  rules:
+    - rule: allow
+      port: 22  # SSH
+    - rule: allow
+      port: 80  # HTTP
+    - rule: allow
+      port: 443  # HTTPS
+    # Add more rules as needed
+
+# Disable Unused Services
+services:
+  - service: bluetooth
+    state: disabled
+  - service: cups
+    state: disabled
+
+# Update and Upgrade Packages
+package_management:
+  update_cache: yes
+  upgrade: yes
