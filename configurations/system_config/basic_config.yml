@@ -4,7 +4,7 @@ server:
   hostname: my-server
   timezone: America/New_York
   users:
-    - name: admin
+    - name: user_admin
       groups: sudo
       password: <hashed_password>  # Replace with the hashed_password using 'mkpasswd -m sha-512' 
 
