@@ -36,6 +36,7 @@ Optimize your workflow, eliminate manual tasks, and embrace the future of infras
 ```bash
 SysAdmin-Toolkit-IaC/
 |-- create_structure.sh
+|-- docs/
 |-- scripts/
 |   |-- server_provisioning/
 |       |-- provision_server.sh
