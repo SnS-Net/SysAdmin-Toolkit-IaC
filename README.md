@@ -49,3 +49,7 @@ SysAdmin-Toolkit-IaC/
 |-- LICENSE
 |-- README.md
 ```
+# Example:
+
+![sysadmin](/docs/sysadmin_example/sysadmin.png)
+
