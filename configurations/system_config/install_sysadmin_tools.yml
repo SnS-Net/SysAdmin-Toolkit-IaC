@@ -1,0 +1,25 @@
+---
+- name: Install sysadmin tools on Ubuntu
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install packages
+      apt:
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - micro
+          - git
+          - curl
+          - python3
+          - htop
+          - wget
+          - tmux
+          - tree
+          - net-tools
+          - speedtest-cli

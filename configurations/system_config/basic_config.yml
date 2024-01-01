@@ -1,51 +1,67 @@
-# Example Basic Server Configuration
+---
+- name: Basic Server Configuration for Ubuntu
+  hosts: your_ubuntu_servers  # Replace with the actual host or group of hosts
+  become: yes
 
-server:
-  hostname: my-server
-  timezone: America/New_York
-  users:
-    - name: user_admin
-      groups: sudo
-      password: <hashed_password>  # Replace with the hashed_password using 'mkpasswd -m sha-512' 
+  tasks:
+    - name: Set hostname and timezone
+      hostname:
+        name: "{{ server.hostname }}"
+      timezone:
+        name: "{{ server.timezone }}"
 
-# Network Configuration
-network:
-  interfaces:
-    - name: eth0  # Replace with the name of your actual interface
-      method: dhcp  # Options: dhcp, static
-      # If using static method:
-      # address: 192.168.1.100
-      # netmask: 255.255.255.0
-      # gateway: 192.168.1.1
-      # dns_nameservers:
-      #   - 8.8.8.8
-      #   - 8.8.4.4
+    - name: Create and configure users
+      user:
+        name: "{{ item.name }}"
+        groups: "{{ item.groups }}"
+        password: "{{ item.password }}"
+        update_password: always
+      with_items: "{{ server.users }}"
 
-# SSH Configuration
-ssh:
-  port: 22  # Change to a custom port if desired
-  allow_root_login: no
+    - name: Network Configuration
+      networkd_interface:
+        name: "{{ item.name }}"
+        dhcp4: yes
+        state: "{{ item.state }}"
+      with_items: "{{ network.interfaces }}"
+      when: item.method == 'dhcp'
 
-# Firewall Configuration
-firewall:
-  enabled: yes
-  rules:
-    - rule: allow
-      port: 22  # SSH
-    - rule: allow
-      port: 80  # HTTP
-    - rule: allow
-      port: 443  # HTTPS
-    # Add more rules as needed
+    - name: Network Configuration (static)
+      networkd_interface:
+        name: "{{ item.name }}"
+        address: "{{ item.address }}"
+        netmask: "{{ item.netmask }}"
+        gateway: "{{ item.gateway }}"
+        dns_nameservers: "{{ item.dns_nameservers }}"
+        state: "{{ item.state }}"
+      with_items: "{{ network.interfaces }}"
+      when: item.method == 'static'
 
-# Disable Unused Services
-services:
-  - service: bluetooth
-    state: disabled
-  - service: cups
-    state: disabled
+    - name: SSH Configuration
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: "{{ item.state }}"
+      with_items:
+        - { regexp: '^Port', line: 'Port {{ ssh.port }}', state: 'present' }  # Change SSH port if desired
+        - { regexp: '^PermitRootLogin', line: 'PermitRootLogin {{ ssh.allow_root_login }}', state: 'present' }  # Adjust root login permissions
 
-# Update and Upgrade Packages
-package_management:
-  update_cache: yes
-  upgrade: yes
+    - name: Firewall Configuration
+      ufw:
+        rule: "{{ item.rule }}"  # Specify firewall rule (allow/deny)
+        port: "{{ item.port }}"  # Specify port number
+        state: "{{ item.state }}"  # Specify state (enabled/disabled)
+      with_items: "{{ firewall.rules }}"
+
+    - name: Disable Unused Services
+      service:
+        name: "{{ item.service }}"
+        enabled: no
+        state: "{{ item.state }}"
+      with_items: "{{ services }}"
+
+    - name: Update and Upgrade Packages
+      apt:
+        update_cache: "{{ package_management.update_cache | default(true) }}"
+        upgrade: "{{ package_management.upgrade | default(false) }}"  # Set to 'true' to perform system upgrade
