@@ -1,0 +1,22 @@
+---
+- name: Set up Cron Job for Daily System Update and Upgrade
+  hosts: all  # Replace with the actual host or group of hosts
+  become: yes
+
+  tasks:
+    - name: Create script for update and upgrade
+      copy:
+        content: |
+          #!/bin/bash
+          sudo apt-get update
+          sudo apt-get -y upgrade
+        dest: /usr/local/bin/update_and_upgrade.sh
+        mode: 0755
+
+    - name: Set up cron job for daily update and upgrade
+      cron:
+        name: "daily_update_and_upgrade"
+        minute: 0
+        hour: 12
+        job: "/usr/local/bin/update_and_upgrade.sh"
+        state: present
